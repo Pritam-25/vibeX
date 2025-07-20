@@ -1,36 +1,31 @@
+// server/api/trpc/router/index.ts
 import { z } from 'zod';
 import { baseProcedure, createTRPCRouter } from '../init';
 import { inngest } from '@/inngest/client';
-export const appRouter = createTRPCRouter({
+import { randomUUID } from 'crypto';
 
-  invoke:baseProcedure
-    .input(
-      z.object({
-        name: z.string(),
-      }),
-    )
+export const appRouter = createTRPCRouter({
+  invoke: baseProcedure
+    .input(z.object({ value: z.string() }))
     .mutation(async (opts) => {
+      const id = randomUUID();
+
       await inngest.send({
-        name: "test/hello.world",
+        name: "test/summarizer",
         data: {
-          email: opts.input.name,
+          id,
+          text: opts.input.value,
         },
       });
 
-      return {ok: "success"};
+      return { ok: "success", id };
     }),
 
   hello: baseProcedure
-    .input(
-      z.object({
-        text: z.string(),
-      }),
-    )
-    .query((opts) => {
-      return {
-        greeting: `hello ${opts.input.text}`,
-      };
-    }),
+    .input(z.object({ text: z.string() }))
+    .query((opts) => ({
+      greeting: `hello ${opts.input.text}`,
+    })),
 });
-// export type definition of API
+
 export type AppRouter = typeof appRouter;
