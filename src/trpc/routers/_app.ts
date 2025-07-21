@@ -6,14 +6,14 @@ export const appRouter = createTRPCRouter({
   invoke:baseProcedure
     .input(
       z.object({
-        name: z.string(),
+        prompt: z.string(),
       }),
     )
     .mutation(async (opts) => {
       await inngest.send({
-        name: "test/hello.world",
+        name: "test/website.builder", // <-- Must match exactly
         data: {
-          email: opts.input.name,
+          text: opts.input.prompt,
         },
       });
 
